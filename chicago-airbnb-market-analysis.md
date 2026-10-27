@@ -1,191 +1,182 @@
-# 🏠 Airbnb Chicago: Listing Performance, Compliance & Decision Engine
+# Chicago Airbnb Market Analysis | Data Analytics Project
 
-An end-to-end data analysis project on **8,704 Airbnb listings in Chicago**. It uses **SQL Server (T-SQL)** to clean the data, measure demand, score listing performance, flag licensing risk, and recommend an action for every listing: **HIRE MORE / KEEP / FIX / IMPROVE / REMOVE**.
+## Project Overview
 
----
+This project analyzes Airbnb listings in Chicago to identify neighbourhood-level market opportunities, understand pricing patterns, evaluate listing performance, and support data-driven decisions.
 
-## 📌 Project Objectives
+The project combines Python-based data cleaning and exploratory data analysis (EDA) with SQL-based data exploration and a Power BI dashboard built using neighbourhood-level opportunity metrics generated through Python.
 
-1. Clean and validate the raw listings data.
-2. Measure demand by neighbourhood, room type, price band and minimum-night policy.
-3. Find under-supplied, high-demand segments to expand into.
-4. Score and classify every listing by performance.
-5. Detect licensing non-compliance and risky hosts.
-6. Combine all of the above into one actionable decision per listing.
+Rather than presenting only descriptive charts, the project focuses on answering a business question:
 
----
+**Which Chicago neighbourhoods present attractive Airbnb market opportunities based on pricing, listing activity, guest engagement, and market stability?**
 
-## 📁 Repository Structure
+The analysis is intended to help prospective hosts, property investors, and market researchers compare neighbourhoods and identify areas worth investigating further.
 
-```
-Airbnb/
-├── Clean_Listing_.csv   # Cleaned Chicago listings dataset (8,704 rows, 21 columns)
-├── airbnb.sql           # All SQL: views, audits and analysis queries
-├── EDA.ipynb            # Python exploratory data analysis notebook
-├── Airbnb_Dashboard.pbix   # Interactive dashboard (rename to match your file)
-├── dashboard_preview.png   # Dashboard screenshot (optional)
-└── README.md
-```
+## Business Objectives
 
----
+- Understand the distribution of Airbnb listings across Chicago neighbourhoods.
+- Analyze listing prices, review activity, and market characteristics.
+- Identify neighbourhoods with different levels of market opportunity.
+- Compare market activity with indicators of listing engagement and stability.
+- Build an interactive Power BI dashboard that supports neighbourhood-level exploration and investment research.
+- Communicate analytical findings through actionable business insights rather than charts alone.
 
-## 🗂️ Dataset: `Clean_Listing_.csv`
+## Project Workflow
 
-| Item | Detail |
+The project follows a data analytics workflow from raw data preparation to business reporting.
+
+1. **Data preparation:** Inspect the dataset, evaluate missing values, examine data types, and identify inconsistent or potentially invalid records.
+2. **Data cleaning:** Use Python and Pandas to prepare listing data and handle selected missing values, price anomalies, and neighbourhood classifications.
+3. **Exploratory data analysis:** Investigate pricing, reviews, listing distribution, and differences between neighbourhoods.
+4. **Opportunity analysis:** Generate neighbourhood-level metrics and opportunity indicators using Python.
+5. **SQL analysis:** Use SQL for data exploration, validation, aggregations, and analytical queries.
+6. **Power BI reporting:** Import `neighbourhood_opportunity.csv` and build an interactive dashboard around the Python-generated opportunity metrics.
+
+## Tools and Technologies
+
+- **Python:** Data preparation, exploratory analysis, metric calculation, and opportunity analysis.
+- **Pandas and NumPy:** Data manipulation, aggregation, and numerical calculations.
+- **Jupyter Notebook:** Analysis workflow and documentation of analytical steps.
+- **SQL Server:** Data exploration, querying, aggregations, and validation.
+- **Power BI:** Interactive reporting, KPI presentation, neighbourhood comparisons, and opportunity analysis.
+- **CSV:** Storage and transfer of cleaned listing data and neighbourhood-level analytical results.
+
+## Repository Structure
+
+| File | Purpose |
 |---|---|
-| Rows / Columns | 8,704 / 21 |
-| City | Chicago, IL |
-| Neighbourhoods | 77 neighbourhoods in 9 groups |
-| Last review dates | Jan 2015 to Jul 2026 |
-| Price range | $20 to $1,087 (median ≈ $237) |
+| `EDA.ipynb` | Python notebook for data exploration, cleaning, and analytical work. |
+| `Clean_Listing_.csv` | Cleaned Airbnb listing dataset used for listing-level analysis. |
+| `neighbourhood_opportunity.csv` | Neighbourhood-level opportunity dataset generated through Python and used as the primary Power BI data source. |
+| `airbnb.pbix` | Power BI report for exploring neighbourhood-level Airbnb market opportunities. |
+| `airbnb.sql` | SQL queries for data exploration, validation, aggregation, and listing analysis. |
 
-**Key columns**
+## Power BI Dashboard
 
-| Column | Description |
-|---|---|
-| `id`, `name` | Listing ID and title |
-| `host_id`, `host_name`, `calculated_host_listings_count` | Host details and how many listings they manage |
-| `neighbourhood_group`, `neighbourhood`, `latitude`, `longitude` | Location |
-| `room_type` | Entire home/apt, Private room, Hotel room, Shared room |
-| `price`, `price_imputed` | Nightly price; `price_imputed = 1` marks filled-in values (1,059 rows) |
-| `minimum_nights`, `availability_365` | Stay rules and days available per year |
-| `number_of_reviews`, `number_of_reviews_ltm`, `reviews_per_month`, `last_review` | Review activity (a proxy for demand) |
-| `license`, `license_status` | License number and status: `valid`, `not valid`, `no license` |
+The Power BI dashboard uses `neighbourhood_opportunity.csv` as its primary data source. Its purpose is to help users compare neighbourhoods and investigate market opportunities using metrics prepared in Python.
 
-**Snapshot**
+The report is organized around three business-focused pages.
 
-- **Room types:** 6,663 Entire home/apt · 1,939 Private room · 70 Hotel room · 32 Shared room
-- **License status:** 5,737 valid · 2,938 no license · 29 not valid
-- **Largest groups by listings:** West Side (2,049), Central (1,900), North Side (1,555)
+### 1. Market Brief
 
----
+Provides an overview of the Chicago Airbnb market and establishes the context for neighbourhood comparisons.
 
-## 🛠️ SQL Workflow (`airbnb.sql`)
+**Analytical focus:**
+- Listing distribution and market size.
+- Neighbourhood-level pricing patterns.
+- Guest review activity and engagement indicators.
+- Overall market characteristics and variation between neighbourhoods.
 
-The script is written for **Microsoft SQL Server**. It expects the CSV to be loaded into a table named `dbo.listings`.
+**Business question:** What does the Chicago Airbnb market look like, and how does it vary across neighbourhoods?
 
-| Step | Object | What it does |
-|---|---|---|
-| 1 | `v_base` | Safely casts types (`TRY_CAST`), fills missing licenses with *Not Available* / *no license* |
-| 2 | Data quality audit | Row count, null audit, duplicate IDs, IQR price outliers |
-| 3 | `v_listing_metrics` | Adds estimated booked days, **occupancy %**, **estimated annual revenue** and days since last review |
-| 4 | Demand analysis | Demand by neighbourhood group, room type, top 15 neighbourhoods, minimum-night buckets and price bands |
-| 5 | `v_opportunity_matrix` | Compares supply and demand per neighbourhood and room type to find expansion targets |
-| 6 | `v_listing_performance` | Weighted **performance score**, classifying listings as `STAR`, `SOLID`, `AT RISK`, `UNDERPERFORMER` or `DORMANT` |
-| 7 | `v_compliance_risk` | **Risk score** based on license status, reused licenses, multi-listing hosts and short stays |
-| 8 | `v_listing_decision` | Final action for every listing, plus an executive KPI summary |
+### 2. Opportunity Explorer
 
-### Performance score
+Helps users compare neighbourhoods using the available opportunity indicators and identify areas that may warrant further research.
 
-Each listing is ranked within its room type, then weighted:
+**Analytical focus:**
+- Neighbourhood-level listing counts.
+- Median listing prices.
+- Review activity and engagement indicators.
+- Opportunity segments or quadrants calculated in Python.
+- Comparisons between market activity and other available opportunity measures.
 
-```
-perf_score = 40% × reviews per month + 35% × occupancy + 25% × estimated revenue
-```
+**Business question:** Which neighbourhoods appear promising, and what characteristics distinguish them from other areas?
 
-| Category | Rule |
-|---|---|
-| ⭐ STAR | score ≥ 75 |
-| ✅ SOLID | score ≥ 50 |
-| ⚠️ AT RISK | score ≥ 30 and reviewed within the last year |
-| 💤 DORMANT | no review in over a year, or no reviews at all |
-| 📉 UNDERPERFORMER | everything else |
+Opportunity classifications are analytical screening tools, not proof of profitability or future demand.
 
-### Compliance risk score
+### 3. Investment Simulator
 
-Points are added for: no license (+40) or invalid license (+50), a license shared by 3+ listings (+25), hosts with 5+ listings (+15), such hosts having non-compliant listings (+15), and short stays (<30 nights) without a valid license (+20).
+Provides a decision-support perspective for comparing potential neighbourhood opportunities.
 
-### Decision engine
+**Analytical focus:**
+- Comparing neighbourhood characteristics.
+- Examining price and market-activity indicators.
+- Assessing how alternative neighbourhood choices compare on the available metrics.
+- Supporting an initial shortlist for further investment research.
 
-| Decision | Triggered when |
-|---|---|
-| 🔴 **REMOVE** | Risk score ≥ 80, non-compliant and low performing, or dormant in a saturated segment |
-| 🟠 **FIX** | Good listing (STAR/SOLID) that still lacks a valid license |
-| 🟢 **HIRE MORE** | Strong listing in a high-opportunity segment, so replicate it there |
-| 🟢 **KEEP** | Top performer, or stable listing to monitor |
-| 🟡 **IMPROVE** | At-risk or underperforming listing that needs repricing or optimisation |
+**Business question:** Which neighbourhoods should be investigated further based on the selected market indicators?
 
----
+The dashboard should not be interpreted as a financial forecasting model unless verified rental income, operating expenses, occupancy, taxes, and investment costs are incorporated.
 
-## 📊 Airbnb Dashboard
+## Understanding the Opportunity Dataset
 
-An interactive dashboard built on the SQL views (`v_listing_metrics`, `v_listing_performance`, `v_compliance_risk`, `v_listing_decision`).
+The file `neighbourhood_opportunity.csv` is the main analytical dataset for the Power BI report.
 
-![Airbnb Dashboard](dashboard_preview.png)
+It contains neighbourhood-level metrics derived from listing data and Python-based analysis. Depending on the implemented calculations, these metrics include:
 
-**What it shows**
+- **Listing count:** Number of listings represented in a neighbourhood.
+- **Median price:** Median recorded listing price, useful for comparing typical advertised prices.
+- **Review metrics:** Indicators of guest review activity.
+- **Engagement index:** A calculated indicator intended to compare engagement across neighbourhoods.
+- **Expected and actual values:** Analytical comparison measures used by the opportunity methodology.
+- **Stability:** A calculated indicator representing the stability dimension defined by the Python analysis.
+- **Active share:** A calculated proportion representing the activity definition used in the analysis.
+- **Opportunity segment or quadrant:** A category assigned using the implemented segmentation logic.
 
-- KPI cards: total listings, average price, average occupancy, estimated revenue
-- Demand by neighbourhood group and room type
-- Map of listings by location and price
-- Performance categories (STAR / SOLID / AT RISK / DORMANT / UNDERPERFORMER)
-- License compliance and risk tiers
-- Decision summary (HIRE MORE / KEEP / FIX / IMPROVE / REMOVE)
+The precise interpretation of derived metrics depends on their formulas in the notebook. They should not be treated as standard industry measures without documenting the calculations and validating their assumptions.
 
-**How to use it:** open `Airbnb_Dashboard.pbix` in Power BI Desktop, point the data source to your SQL Server database (or to `Clean_Listing_.csv`), then refresh. Use the slicers to filter by neighbourhood, room type and price band.
+## Analytical Approach
 
----
+The project combines descriptive analysis with neighbourhood-level comparisons.
 
-## 🚀 How to Run
+### Data quality and preparation
 
-1. **Create a database** in SQL Server (e.g. `airbnb_chicago`).
-2. **Import `Clean_Listing_.csv`** into a table called `dbo.listings` (SQL Server Management Studio: *Tasks → Import Flat File*).
-3. **Run `airbnb.sql`** top to bottom. The views are created in order and each analysis query can then be run on its own.
-4. **Open `EDA.ipynb`** in Jupyter for the Python exploration:
+The notebook examines missing values, data types, inconsistent fields, and unusual price values. Selected fields are cleaned or imputed according to the implemented rules.
 
-```bash
-pip install pandas numpy matplotlib seaborn jupyter
-jupyter notebook EDA.ipynb
-```
+Imputed values and modified outliers should be distinguished from original observations when interpreting price-related findings.
 
----
+### Neighbourhood comparison
 
-## 🧰 Tools & Skills
+Listing counts, median prices, and review activity are compared to identify differences in market characteristics.
 
-- **SQL Server / T-SQL:** views, CTEs, window functions (`PERCENT_RANK`, `NTILE`, `PERCENTILE_CONT`), conditional scoring
-- **Python:** pandas, Jupyter Notebook (EDA)
-- **Analytics:** data cleaning, outlier detection, KPI design, segmentation, risk scoring
+### Opportunity segmentation
 
----
+Python calculates neighbourhood-level indicators and assigns opportunity categories using the implemented segmentation method. These categories support comparison and exploration; they do not establish that one neighbourhood will necessarily outperform another.
 
-## 🔍 Key Questions Answered
+### Business interpretation
 
-- Which neighbourhoods and room types have the highest demand?
-- How do minimum nights and price bands affect occupancy?
-- Where is demand high but supply low?
-- Which listings are stars, and which are dormant?
-- Which hosts and listings carry the highest licensing risk?
-- Which listings should be kept, fixed, improved or removed?
+Power BI presents the prepared metrics in a format that helps users investigate patterns, compare neighbourhoods, and identify areas for additional research.
 
----
+## Key Questions This Project Explores
 
-## ⚠️ Limitations
+- How does Airbnb listing supply vary across Chicago neighbourhoods?
+- Which neighbourhoods have relatively high or low median listing prices?
+- How does review activity differ between neighbourhoods?
+- Which neighbourhoods stand out when multiple market indicators are considered together?
+- Where do market characteristics suggest opportunities for further investigation?
+- What additional evidence would be required before making a property investment decision?
 
-- **Estimated, not actual, bookings:** occupancy and revenue come from `availability_365`. Hosts can block dates for personal use, so occupancy may be overstated.
-- **Reviews as a demand proxy:** not every guest leaves a review, and newer listings naturally have fewer reviews.
-- **Single snapshot:** the data is one point in time, so seasonality and price changes over the year are not captured.
-- **Imputed prices:** 1,059 listings (about 12%) have imputed prices, which can affect revenue and price-band results.
-- **Missing values:** 1,525 listings have no `last_review`, and 44 are missing host information.
-- **License data:** `license_status` depends on what hosts report. A listing marked "no license" may be exempt or simply unreported.
-- **Rule-based scoring:** the performance weights (40/35/25), risk points and decision thresholds are judgement-based, not statistically validated. Different weights give different results.
-- **Date-dependent output:** `days_since_last_review` uses `GETDATE()`, so categories such as DORMANT shift as time passes.
-- **Segment size:** neighbourhood analysis excludes small segments (fewer than 30 or 10 listings), so tiny areas are not covered.
-- **No external data:** competitor pricing, local events, and hotel supply are not included.
+## Important Limitations
+
+This analysis is intended for exploratory market research and decision support.
+
+- Advertised listing prices are not the same as realized nightly revenue.
+- Listing availability is not a direct measure of occupancy because hosts may block dates or leave calendars unavailable.
+- Review counts and recent review activity are imperfect proxies for booking activity and demand.
+- License text patterns alone cannot establish legal compliance. Verification against authoritative records and applicable Chicago regulations is necessary.
+- Missing-value imputation and outlier treatment can affect neighbourhood comparisons and derived metrics.
+- Calculated opportunity indicators depend on their definitions, assumptions, and segmentation rules.
+- Neighbourhood-level averages and medians may conceal substantial differences between individual properties.
+- Profitability cannot be established without verified occupancy, expenses, fees, taxes, financing assumptions, and applicable regulatory requirements.
+
+The dashboard should therefore be used to shortlist neighbourhoods for further investigation, not as a guarantee of demand, compliance, or investment returns.
+
+## How to Explore the Project
+
+1. Open `EDA.ipynb` to review the Python analysis and understand the data preparation and opportunity calculations.
+2. Review `Clean_Listing_.csv` for the cleaned listing-level data.
+3. Examine `neighbourhood_opportunity.csv` to understand the neighbourhood-level metrics used in the dashboard.
+4. Open `airbnb.pbix` in Power BI Desktop to explore the report.
+5. Review `airbnb.sql` to examine the SQL queries and analytical checks.
+
+The notebook's input files and execution order may need to be adjusted to match the local environment. The generated CSV files should be refreshed after the underlying analysis changes.
+
+## Project Outcome
+
+This project demonstrates an end-to-end analytical approach to an Airbnb market research problem: preparing data, exploring market patterns, calculating neighbourhood-level indicators, querying data with SQL, and communicating findings through Power BI.
+
+Its main emphasis is on **turning listing-level data into neighbourhood-level insights that support structured market comparison and informed follow-up research.**
 
 ---
 
-## 📝 Notes
-
-- Occupancy and revenue are **estimates** derived from `availability_365` (booked days = 365 − availability). They are not actual booking data.
-- `days_since_last_review` is calculated from the current date (`GETDATE()`), so results change over time.
-- 1,059 prices were imputed (`price_imputed = 1`); consider filtering them for price-sensitive analysis.
-- `EDA.ipynb` is currently a starter notebook and will be expanded with visualisations.
-
----
-
-## 👤 Author
-
-**mrinalini11-data**
-GitHub: [github.com/mrinalini11-data](https://github.com/mrinalini11-data)
-
-⭐ If you found this project useful, consider giving the repo a star!
+*Disclaimer: This is an independent data analytics project. The findings are exploratory and should not be interpreted as official market statistics, legal advice, or financial advice.*
