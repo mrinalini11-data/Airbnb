@@ -146,6 +146,53 @@ Power BI presents the prepared metrics in a format that helps users investigate 
 - Where do market characteristics suggest opportunities for further investigation?
 - What additional evidence would be required before making a property investment decision?
 
+## Key Findings and Insights
+
+The analysis highlights several important patterns and data-quality considerations in the Chicago Airbnb market.
+
+### 1. Neighbourhoods differ in listing supply and pricing
+
+The number of listings and median advertised prices vary across neighbourhoods. This suggests that the market should be evaluated at the neighbourhood level rather than treated as one uniform market.
+
+**Business implication:** Comparing listing supply and median prices together can help identify areas that deserve closer investigation.
+
+### 2. Review activity provides useful engagement signals
+
+Review activity helps distinguish listings and neighbourhoods with different levels of observable guest engagement. However, reviews are an imperfect proxy for bookings because not every guest leaves a review.
+
+**Business implication:** Review metrics should be considered alongside listing supply and pricing instead of being used as a standalone measure of demand.
+
+### 3. Opportunity indicators help organize neighbourhood comparisons
+
+The Python analysis combines neighbourhood-level metrics into calculated indicators and opportunity segments. These provide a structured way to compare areas with different market characteristics.
+
+**Business implication:** The opportunity analysis can help users shortlist neighbourhoods for further research, while avoiding the assumption that a high opportunity score automatically means higher returns.
+
+### 4. Data quality affects market conclusions
+
+Missing prices, unusual price values, inconsistent fields, and incomplete listing information can influence analytical results. Data cleaning and validation are therefore important parts of the project, not just preliminary tasks.
+
+**Business implication:** Decisions should account for imputed values and data limitations, especially when comparing prices or estimating market performance.
+
+### 5. Availability does not necessarily mean occupancy
+
+A listing's available calendar days cannot reliably establish how often it is booked. Hosts may block dates for personal use, maintenance, or other reasons.
+
+**Business implication:** Booking or revenue estimates require stronger evidence than calendar availability alone. Review activity can provide an additional signal, but it cannot replace verified booking data.
+
+### 6. Opportunity scores are screening tools, not investment guarantees
+
+Neighbourhood rankings depend on the metrics, formulas, and segmentation rules used in Python. Small neighbourhood samples and missing information can also affect comparisons.
+
+**Business implication:** The dashboard is most useful for identifying areas to investigate further. A final investment decision would require verified rental income, operating costs, occupancy, property prices, and regulatory checks.
+
+### Overall Takeaway
+
+The project demonstrates how raw Airbnb listing data can be transformed into a neighbourhood-level analytical dataset and an interactive Power BI report. Its main value is bringing pricing, listing supply, guest engagement, and calculated opportunity indicators together to support more structured market research.
+
+The findings also highlight an important analytical principle: **a useful dashboard should not only show where differences exist, but also explain what those differences mean, what assumptions affect them, and what evidence is still needed before taking action.**
+
+
 ## Important Limitations
 
 This analysis is intended for exploratory market research and decision support.
